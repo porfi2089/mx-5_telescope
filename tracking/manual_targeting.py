@@ -28,13 +28,17 @@ def get_joystick_data():
 
     # Get values from the joystick axes
     axis1 = joystick.get_axis(0)  # Left-right axis of the first stick
+    if axis1 < 0.1 and axis1 > -0.1:
+        axis1 = 0
     axis2 = joystick.get_axis(1)  # Up-down axis of the first stick
+    if axis2 < 0.1 and axis2 > -0.1:
+        axis2 = 0
     axis3 = joystick.get_axis(2)  # Left-right axis of the second stick
+    if axis3 < 0.1 and axis3 > -0.1:
+        axis3 = 0
     axis4 = joystick.get_axis(3)  # Up-down axis of the second stick
-    
-    for i in (axis1, axis2, axis3, axis4):
-        if abs(i) < 0.1:
-            i = 0
+    if axis4 < 0.1 and axis4 > -0.1:
+        axis4 = 0
 
     axis = ((axis1, axis2), (axis3, axis4))
 
@@ -52,7 +56,7 @@ def get_joystick_data():
 
     return axis, buttons
 
-target1 = tracking.target(320, 240, 50, 640, 480)
+target1 = tracking.target(320, 240, 50, np.zeros((480, 640, 3)))
 
 while True:
     ret, frame = input_video.read()
@@ -66,14 +70,15 @@ while True:
         target1.set_size(target1.size + 2)
     if buttons[5]:
         target1.set_size(target1.size - 2)
+    if buttons[0] and not target1.tracking:
+        target1.intialize_track(frame)
+    if buttons[1]:
+        target1.stop_track()
+
+    if target1.tracking:
+        target1.update_track(frame)    
 
     target1.draw(frame)
-
-    # Print the joystick data
-    print("Axis: ", axis)
-    print("Buttons: ", buttons)
-    print()
-
 
 
     cv.imshow('frame', frame)
