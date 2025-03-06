@@ -56,29 +56,43 @@ def get_joystick_data():
 
     return axis, buttons
 
-target1 = tracking.target(320, 240, 50, np.zeros((480, 640, 3)))
 
+targets = []
+selected_target = 0
 while True:
     ret, frame = input_video.read()
     if not ret:
         break
     
     axis, buttons = get_joystick_data()
+    if targets is None:
+        selected_target = 0
+    else:
 
-    target1.move(int(axis[0][0] * 10), int(axis[0][1] * 10))
-    if buttons[4]:
-        target1.set_size(target1.size + 2)
-    if buttons[5]:
-        target1.set_size(target1.size - 2)
-    if buttons[0] and not target1.tracking:
-        target1.intialize_track(frame)
-    if buttons[1]:
-        target1.stop_track()
+        target1.move(int(axis[0][0] * 10), int(axis[0][1] * 10))
+        if buttons[4]:
+            target1.set_size(target1.size + 2)
+        if buttons[5]:
+            target1.set_size(target1.size - 2)
+        if buttons[6]:
+            if selected_target > 0:
+                selected_target -= 1
+            else:
+                selected_target = len(targets)-1
 
-    if target1.tracking:
-        target1.update_track(frame)    
+        if buttons[0] and not target1.tracking:
+            target1.intialize_track(frame)
+        if buttons[1]:
+            target1.stop_track()
 
-    target1.draw(frame)
+        if target1.tracking:
+            target1.update_track(frame)    
+
+        for n, target in enumerate(targets):
+            if n == selected_target:
+                target.draw(frame)
+            else:
+                target.draw(frame)
 
 
     cv.imshow('frame', frame)

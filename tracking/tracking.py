@@ -73,12 +73,14 @@ class target:
         self.size = size
         return True
     
-    def draw(self, frame:cv.typing.MatLike) -> None:
+    def draw(self, frame:cv.typing.MatLike, selected:bool = False) -> None:
         color = (0, 0, 255)
         if self.tracking:
             color = (0, 255, 0)
             cv.circle(frame, (self.x + self.pos[0], self.y + self.pos[1]), 5, (0, 255, 0), -1)
             cv.circle(frame, (self.x + self.pos_start[0], self.y + self.pos_start[1]), 5, (0, 255, 0), -1)
+        if selected:
+            cv.rectangle(frame, (self.x-4, self.y-4), (self.x + self.size+4, self.y + self.size+4), (255, 0, 0), 2)
         cv.rectangle(frame, (self.x, self.y), (self.x + self.size, self.y + self.size), color, 2)
         
             
@@ -105,3 +107,4 @@ class target:
     
     def stop_track(self) -> None:
         self.tracking = False
+
