@@ -1,8 +1,6 @@
 import cv2 as cv
 import numpy as np
 import pygame
-import serial
-import time
 import tracking
 
 # Initialize Pygame and the joystick
@@ -59,40 +57,72 @@ def get_joystick_data():
 
 targets = []
 selected_target = 0
+buttons_pressed = [False, False, False, False, False, False, False, False]
 while True:
     ret, frame = input_video.read()
     if not ret:
         break
     
     axis, buttons = get_joystick_data()
-    if targets is None:
+    if len(targets) == 0:
         selected_target = 0
-    else:
-
-        target1.move(int(axis[0][0] * 10), int(axis[0][1] * 10))
+        if buttons[2]:
+            targets = [tracking.target(100, 100, 50, frame)]
+    else: 
+        targets[selected_target].move(int(axis[0][0] * 10), int(axis[0][1] * 10))
         if buttons[4]:
-            target1.set_size(target1.size + 2)
+            targets[selected_target].set_size(targets[selected_target].size + 2)
         if buttons[5]:
-            target1.set_size(target1.size - 2)
-        if buttons[6]:
+            targets[selected_target].set_size(targets[selected_target].size - 2)
+        if buttons[6] and buttons_pressed[6] == False:
+            buttons_pressed[6] = True
             if selected_target > 0:
                 selected_target -= 1
             else:
                 selected_target = len(targets)-1
+        elif not buttons[6]:
+            buttons_pressed[6] = False
 
-        if buttons[0] and not target1.tracking:
-            target1.intialize_track(frame)
+        if buttons[7] and buttons_pressed[7] == False:
+            buttons_pressed[7] = True
+            if selected_target < len(targets)-1:
+                selected_target += 1
+            else:
+                selected_target = 0
+        elif not buttons[7]:
+            buttons_pressed[7] = False
+
+        if buttons[0] and not targets[selected_target].tracking:
+            targets[selected_target].intialize_track(frame)
         if buttons[1]:
-            target1.stop_track()
+            targets[selected_target].stop_track()
 
-        if target1.tracking:
-            target1.update_track(frame)    
+           
 
         for n, target in enumerate(targets):
+            if target.tracking:
+                target.update_track(frame) 
             if n == selected_target:
-                target.draw(frame)
+                target.draw(frame, True)
             else:
                 target.draw(frame)
+        
+        if buttons[2] and not buttons_pressed[2]:
+            buttons_pressed[2] = True
+            targets.append(tracking.target(100, 100, 50, frame))
+            selected_target = len(targets)-1
+        elif not buttons[2]:
+            buttons_pressed[2] = False
+
+        if buttons[3] and not buttons_pressed[3]:
+            buttons_pressed[3] = True
+            targets.pop(selected_target)
+            if selected_target > 0:
+                selected_target -= 1
+            else:
+                selected_target = len(targets)-1
+        elif not buttons[3]:
+            buttons_pressed[3] = False
 
 
     cv.imshow('frame', frame)

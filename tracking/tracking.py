@@ -1,6 +1,5 @@
 import cv2 as cv
 import numpy as np
-import time
 
 def get_star_position(frame: cv.typing.MatLike) -> list[int, int]:
     """Get the average position of the star in the frame"""
@@ -82,8 +81,6 @@ class target:
         if selected:
             cv.rectangle(frame, (self.x-4, self.y-4), (self.x + self.size+4, self.y + self.size+4), (255, 0, 0), 2)
         cv.rectangle(frame, (self.x, self.y), (self.x + self.size, self.y + self.size), color, 2)
-        
-            
 
     def intialize_track(self, frame:cv.typing.MatLike) -> bool:
         roi = frame[self.y:self.y + self.size, self.x:self.x + self.size]
