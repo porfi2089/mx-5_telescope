@@ -54,7 +54,15 @@ def get_joystick_data():
 
     return axis, buttons
 
-
+def combine_errors(targets: list[tracking.target]) -> np.ndarray:
+    if len(targets) == 1:
+        return targets[0].error
+    else:
+        error = np.zeros(targets[0].error.shape)
+        for target in targets:
+            error += target.error
+        return error
+    
 targets = []
 selected_target = 0
 buttons_pressed = [False, False, False, False, False, False, False, False]
@@ -74,6 +82,7 @@ while True:
             targets[selected_target].set_size(targets[selected_target].size + 2)
         if buttons[5]:
             targets[selected_target].set_size(targets[selected_target].size - 2)
+            
         if buttons[6] and buttons_pressed[6] == False:
             buttons_pressed[6] = True
             if selected_target > 0:

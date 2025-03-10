@@ -60,7 +60,7 @@ class target:
         return self.x, self.y
     
     def set_size(self, size: int) -> bool:
-        if size < 0:
+        if size < 2:
             return False
         if (self.x + size) > self.limit_x:
             return False
